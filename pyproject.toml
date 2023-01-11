@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "combine_csv"
+version = "1.0b1"
+authors = [
+  { name="Raynald de Lahondès" },
+]
+description = "A small tool to merge CSV/TSV files"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Development Status :: 4 - Beta",
+    "Operating System :: OS Independent",
+]
+dependencies=['pandas']
+
+[project.urls]
+"Homepage" = "https://github.com/gmtsciencedev/combine_csv"
+"Bug Tracker" = "https://github.com/gmtsciencedev/combine_csv/issues"
+"Documentation" = "https://combine_csv.readthedocs.io/"
+
+[project.scripts]
+combine_csv = "combine_csv:main"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+

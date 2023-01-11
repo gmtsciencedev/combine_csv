@@ -1,0 +1,13 @@
+site_name: combine_csv
+theme:
+  name: readthedocs
+  highlightjs: true
+nav:
+  - home: index.md
+plugins:
+  - search
+markdown_extensions:
+  - markdown_include.include:
+      base_path: src
+  - admonition
+  - def_list
