@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "combine_csv"
-version = "1.0b3"
+version = "2.0"
 authors = [
   { name="Raynald de Lahondès" },
 ]
@@ -25,7 +25,8 @@ dependencies=['pandas']
 "Documentation" = "https://combine_csv.readthedocs.io/"
 
 [project.scripts]
-combine_csv = "combine_csv:main"
+combine_csv = "combine_csv.merge:main"
+split_csv = "combine_csv.split:main"
 
 
 [tool.setuptools.packages.find]
