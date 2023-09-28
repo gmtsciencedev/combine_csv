@@ -5,7 +5,7 @@ Based on an idea from [https://github.com/ekapope/Combine-CSV-files-in-the-folde
 Item|Project site
 --|--
 Source|[https://github.com/gmtsciencedev/combine_csv](https://github.com/gmtsciencedev/combine_csv)
-Documentation|[https://combine_csv.readthedocs.io/](https://combine_csv.readthedocs.io/)
+Documentation|[https://combine-csv.readthedocs.io/](https://combine-csv.readthedocs.io/)
 Download|[https://pypi.org/project/combine-csv/](https://pypi.org/project/combine-csv/)
 Keywords|python, csv, merge, combine
 
