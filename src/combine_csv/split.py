@@ -6,22 +6,27 @@ import os
 DEFAULT_OUTPUT_PATTERN = '{input}_{index}.{ext}'
 DEFAULT_ENCODING = 'utf-8'
 
-def split_csv(input, output_pattern, encoding, separator, output_separator, column):
+def split_csv(input, output_pattern, encoding, separator, output_separator, column, rename):
     """A CSV split procedure
     """
-    df = pd.read_csv(input, sep=separator, index_col=0)
+    df = pd.read_csv(input, sep=separator, index_col=0, encoding=encoding)
     basename, ext = os.path.splitext(input)
     ext = ext[1:]
 
     if column:
         for col in df.columns:
             filename = output_pattern.format(index=col, input=basename, ext=ext)
-            df[col].to_csv(filename, sep=output_separator)
+            this_df = df[col]
+            if rename:
+                this_df.name=rename
+            this_df.to_csv(filename, sep=output_separator)
     else:
         for index, row in df.iterrows():
             dict = row.to_dict()
             dict.update({'index':index, 'input':basename, 'ext':ext})
             filename = output_pattern.format( **dict )
+            if rename:
+                row.name = rename
             pd.DataFrame(row).transpose().to_csv(filename, sep=output_separator, index_label=df.index.name)
 
 
@@ -43,6 +48,8 @@ def main():
                         help="Separator to use for input (and output unless -t is used), default to ',' if set to auto then autodetection is done (slower) (use \\t quoted for tab)")
     parser.add_argument("-t", "--outputseparator", type=str, default=None,
                         help="Separator to use for output, default to separator option, see above, and to , as a last resort")  
+    parser.add_argument("-r","--rename", default=None, type=str,
+                        help='Rename index (first word of 2nd line in line mod, second word in 1st line in column mod) to this string in resulting TSV file')
     args = parser.parse_args()
 
     if args.separator == 'auto':
@@ -60,4 +67,5 @@ def main():
     
 
     split_csv(input=args.input, output_pattern=args.output, encoding=args.encoding,
-                separator=args.separator, output_separator=args.outputseparator, column=args.column)
+                separator=args.separator, output_separator=args.outputseparator, column=args.column,
+                rename=args.rename)

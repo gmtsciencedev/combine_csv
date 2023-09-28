@@ -167,7 +167,7 @@ In the case of the line-split mode, the pattern may also use one of the column n
 
 For instance, in the above example:
 ```bash
-split_csv -o 'my{index}-{a}.csv' /tmp/test1/t.csv
+split_csv -o 'my{index}-{a}.csv' my.csv
 ```
 
 Will create three files: `my1-0.csv`, `my2-0.csv` and `my3-1.csv`
