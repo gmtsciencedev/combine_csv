@@ -15,7 +15,7 @@ SOURCE_COLUMN_NAME = "source"
 ALTERNATE_COLUMN_NAME = "_source"
 
 def combine_csv(input_pattern, output_filename, encoding, addname, separator, output_separator, column, source_column,
-        sort_columns):
+        sort_columns, output_encoding):
     """Find all files matching input_pattern and combine them in a unique csv named output_filename
 
     encoding is the encoding used to create the new file
@@ -37,9 +37,9 @@ def combine_csv(input_pattern, output_filename, encoding, addname, separator, ou
         for f in all_filenames:
             base_name = os.path.splitext(os.path.basename(f))[0]
             if separator is None:
-                data = pd.read_csv(f, index_col=0, sep=separator, engine='python')
+                data = pd.read_csv(f, index_col=0, sep=separator, engine='python', encoding=encoding)
             else:
-                data = pd.read_csv(f, index_col=0, sep=separator)
+                data = pd.read_csv(f, index_col=0, sep=separator, encoding=encoding)
             if addname:
                 #data.columns = [data.columns[0]]+['{}_{}'.format(col, base_name) for col in data.columns[1:]]
                 data.columns = ['{}_{}'.format(base_name,col) for col in data.columns]
@@ -58,7 +58,7 @@ def combine_csv(input_pattern, output_filename, encoding, addname, separator, ou
             combined_csv = combined_csv[sorted(combined_csv)]
         #combined_csv = data_set
         #export to csv
-        combined_csv.to_csv( output_filename, sep=output_separator, index=True, index_label=index_name, encoding=encoding)
+        combined_csv.to_csv( output_filename, sep=output_separator, index=True, index_label=index_name, encoding=output_encoding)
     else:
         if addname:
             data_set = []
@@ -66,7 +66,7 @@ def combine_csv(input_pattern, output_filename, encoding, addname, separator, ou
             source_column_name = source_column
             for f in all_filenames:
                 base_name = os.path.splitext(os.path.basename(f))[0]
-                data = pd.read_csv(f, sep=separator)
+                data = pd.read_csv(f, sep=separator, encoding=encoding)
                 # this is a hack to allow for incremental adding
                 if f!=output_filename:
                     try:
@@ -92,13 +92,13 @@ def combine_csv(input_pattern, output_filename, encoding, addname, separator, ou
                 data_set.append(data)
             combined_csv = pd.concat(data_set)
         else:
-            combined_csv = pd.concat([pd.read_csv(f, sep=separator) for f in all_filenames ])
+            combined_csv = pd.concat([pd.read_csv(f, sep=separator, encoding=encoding) for f in all_filenames ])
 
         if sort_columns:
             combined_csv = combined_csv[sorted(combined_csv)]
 
         #export to csv
-        combined_csv.to_csv( output_filename, sep=output_separator, index=False, encoding=encoding)
+        combined_csv.to_csv( output_filename, sep=output_separator, index=False, encoding=output_encoding)
 
 def main():
     parser = argparse.ArgumentParser(description="Merge several CSV files with header, merged on the base of common columns, each file add some extra lines (except in column mode, see below)")
@@ -110,7 +110,9 @@ def main():
     parser.add_argument("-o", "--output", type=str, default=OUTPUT_DEFAULT,
                         help="Output CSV file (default to {})".format(OUTPUT_DEFAULT))
     parser.add_argument("-e", "--encoding", type=str, default=ENCODING_DEFAULT, 
-                        help="Encoding to use (default to {})".format(ENCODING_DEFAULT))
+                        help="Input encoding, used to read (default to {})".format(ENCODING_DEFAULT))
+    parser.add_argument("-E", "--output-encoding", type=str, default=None, 
+                        help="Output encoding used to write output (default to input encoding)")
     parser.add_argument("-a", "--addname", action="store_true",
                         help="Add a column with source CSV file basename (not present by default)")
     parser.add_argument("-s", "--separator", type=str, default=',',
@@ -135,6 +137,8 @@ def main():
             args.outputseparator=args.separator
         else:
             args.outputseparator=','
+    if args.output_encoding is None:
+        args.output_encoding = args.encoding
     
     if args.separator == '\\t':
         args.separator = '\t'
@@ -144,4 +148,4 @@ def main():
 
     combine_csv(input_pattern=args.input, output_filename=args.output, encoding=args.encoding, addname=args.addname,
                 separator=args.separator, output_separator=args.outputseparator, column=args.column, 
-                source_column=args.source_column, sort_columns=args.sort_columns)
+                source_column=args.source_column, sort_columns=args.sort_columns, output_encoding=args.output_encoding)
