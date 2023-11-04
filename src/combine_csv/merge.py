@@ -8,8 +8,7 @@ import glob
 import pandas as pd
 import argparse
 
-INPUT_DEFAULT = "*.csv"
-OUTPUT_DEFAULT = "combined.csv"
+
 ENCODING_DEFAULT = "utf-8-sig"
 SOURCE_COLUMN_NAME = "source"
 ALTERNATE_COLUMN_NAME = "_source"
@@ -100,27 +99,25 @@ def combine_csv(input_pattern, output_filename, encoding, addname, separator, ou
         #export to csv
         combined_csv.to_csv( output_filename, sep=output_separator, index=False, encoding=output_encoding)
 
-def main():
-    parser = argparse.ArgumentParser(description="Merge several CSV files with header, merged on the base of common columns, each file add some extra lines (except in column mode, see below)")
+def main(default_separator=',', file_type='CSV', output_default='combined.csv', input_default='*.csv'):
+    parser = argparse.ArgumentParser(description=f"Merge several {file_type} files with header, merged on the base of common columns, each file add some extra lines (except in column mode, see below)")
 
-    parser.add_argument("-i", "--input", type=str, default=INPUT_DEFAULT,
-                        help="CSV input files to combine (dont forget to quote to avoid shell interpretation of *) (default to {})".format(
-                            INPUT_DEFAULT
-                        ))
-    parser.add_argument("-o", "--output", type=str, default=OUTPUT_DEFAULT,
-                        help="Output CSV file (default to {})".format(OUTPUT_DEFAULT))
+    parser.add_argument("-i", "--input", type=str, default=input_default,
+                        help=f"{file_type} input files to combine (dont forget to quote to avoid shell interpretation of *) (default to {input_default})")
+    parser.add_argument("-o", "--output", type=str, default=output_default,
+                        help=f"Output {file_type} file (default to {output_default})")
     parser.add_argument("-e", "--encoding", type=str, default=ENCODING_DEFAULT, 
                         help="Input encoding, used to read (default to {})".format(ENCODING_DEFAULT))
     parser.add_argument("-E", "--output-encoding", type=str, default=None, 
                         help="Output encoding used to write output (default to input encoding)")
     parser.add_argument("-a", "--addname", action="store_true",
                         help="Add a column with source CSV file basename (not present by default)")
-    parser.add_argument("-s", "--separator", type=str, default=',',
-                        help="Separator to use for input (and output unless -t is used), default to ',' if set to auto then autodetection is done (slower) (use \\t quoted for tab)")
+    parser.add_argument("-s", "--separator", type=str, default=default_separator,
+                        help=f"Separator to use for input (and output unless -t is used), default to {repr(default_separator)} if set to auto then autodetection is done (slower) (use \\t quoted for tab)")
     parser.add_argument("-C", "--sort-columns", action="store_true",
                         help="Sort columns")
     parser.add_argument("-t", "--outputseparator", type=str, default=None,
-                        help="Separator to use for output, default to separator option, see above, and to , as a last resort")  
+                        help=f"Separator to use for output, default to separator option, see above, and to {repr(default_separator)} as a last resort")  
     parser.add_argument("-c", "--column", action="store_true",
                         help="Operate in 'column mode', that is, lines will be merged (first column is supposed to be a common key), and column will be added, with filename added if -a is used, and with _extra in case column overlapp")
     #parser.add_argument("-u", "--unsort")
@@ -132,20 +129,21 @@ def main():
 
     if args.separator == 'auto':
         args.separator = None
+    elif args.separator == '\\t':
+        args.separator = '\t'
+
     if args.outputseparator is None:
         if args.separator is not None:
             args.outputseparator=args.separator
         else:
-            args.outputseparator=','
+            args.outputseparator=default_separator
     if args.output_encoding is None:
         args.output_encoding = args.encoding
-    
-    if args.separator == '\\t':
-        args.separator = '\t'
-    if args.outputseparator == '\\t':
-        args.outputseparator = '\t'
     
 
     combine_csv(input_pattern=args.input, output_filename=args.output, encoding=args.encoding, addname=args.addname,
                 separator=args.separator, output_separator=args.outputseparator, column=args.column, 
                 source_column=args.source_column, sort_columns=args.sort_columns, output_encoding=args.output_encoding)
+    
+def tsv_main():
+    main(default_separator='\t', file_type='TSV', input_default='*.tsv', output_default='combined.tsv')
