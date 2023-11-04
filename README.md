@@ -337,4 +337,4 @@ index,name,variable,value
 
 ## pivot_tsv
 
-As with other utility a sister utility named `pivot_tsv` is provided and it behaves exactly the same 
+As with other utility a sister utility named `pivot_tsv` is provided and it behaves exactly the same except it defaults to TSV with TAB as a separator.
